@@ -1,0 +1,69 @@
+ф1 - настройка статических адрессов 
+
+sudo su (права)
+ip a - индикация наличия интерфейсов
+nano /etc/network/interfaces
+auto (название интерфейса)
+iFace (название интерфейса) inet static
+address (айпи)
+netmask (маска)
+gateway (шлюз(по надобности))
+
+systemctl restart networking - сохраниение и применение конфига
+---
+dhclient
+apt update
+apt install network-manager 
+nmtui - попасть в графику
+____
+systemctl restart networking - каждый раз после манипуляций с айпи адресами 
+-------тфт
+FRR
+на роутерах nano /etc/sysctl.conf
+раскоментируем net.ipv4
+ выключаем внутр сеть на всех роутерах
+коментируем все карты кроме ната
+подключаем диск и пишем apt-cdrom add
+apt install curl
+mkdir /usr/share/keyrings
+Прописываем команду
+curl -s https://deb.frrouting.org/frr/keys.gpg | sudo tee /usr/share/keyrings/frrouting.gpg > /dev/null
+nano /etc/apt/.sources.list
+коипурем вторую строку, и вместо версии от / до / вписываем orel
+deb [trusted=true signed-by=/usr/share/keyrings/frrouting.gpg] https://deb.frrouting.org/frr stretch frr-stable
+apt update
+apt install frr frr-pythontools
+nano /etc/frr/daemons
+ospfd=no меняем на yes
+dhclient -r
+
+-----
+1. Создать папку по пути
+/usr/share/keyrings
+2. Прописываем команду
+curl -s https://deb.frrouting.org/frr/keys.gpg | sudo tee /usr/share/keyrings/frrouting.gpg > /dev/null
+3. Ещё команду
+FRRVER="frr-stable"
+4. И ещё команду (после её ввода мы оказываемся в файле)
+echo deb '[signed-by=/usr/share/keyrings/frrouting.gpg]' https://deb.frrouting.org/frr \
+5. Оказались в файле, пишем
+$(lsb_release -s -c) $FRRVER | sudo tee -a /etc/apt/sources.list.d/frr.list
+6. С помощью nano или vi открываем файл 
+/etc/apt/sources.list.d/frr.list
+Находим там имя orel и меняем его на stretch
+7.Обновляемся
+sudo apt update
+8. И проверяем, ищутся ли пакеты frr
+sudo apt install frr frr-pythontools
+9. Если пакеты нашлись, но просит установку дополнительного пакета libc-ares2, то переходим в файл sources.list и добавляем туда репозиторий по аналогии с уже прописанным в этом файле:
+https://dl.astralinux.ru/astra/stable/orel/repository/pool/main/c/c-ares/
+10. Снова обновляемся и устанавливаем пакеты frr
+sudo apt update && sudo apt install frr frr-pythontools
+
+-----------
+
+3-DHCP
+
+apt-get update && apt-get install -y dhcp-server
+/etc/sysconfig/dhcpd - для dhcpd.service
+/etc/sysconfig/dhcpd6 - для dhcpd6.service
